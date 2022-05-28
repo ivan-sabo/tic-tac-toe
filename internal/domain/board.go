@@ -13,11 +13,19 @@ func NewBoard() Board {
 	return "---------"
 }
 
-// FromString recreates an existing Board out of string.
+// FromString should be used to create a new Board structure from string.
 func FromString(s string) (Board, error) {
-	if len(s) != 9 {
-		return Board(""), ErrInvalidLength
+	if err := validateLength(s); err != nil {
+		return Board(""), err
 	}
+
+	for _, v := range s {
+		if err := validateField(string(v)); err != nil {
+			return Board(""), err
+		}
+
+	}
+
 	return Board(s), nil
 }
 
@@ -27,9 +35,13 @@ func (b *Board) String() string {
 }
 
 // Update does the next move.
-func (b *Board) Update(n Board) error {
+func (b *Board) Update(n string) error {
+	if err := validateLength(n); err != nil {
+		return err
+	}
+
 	oldState := strings.Split(b.String(), "")
-	newState := strings.Split(n.String(), "")
+	newState := strings.Split(n, "")
 
 	var moveDone bool = false
 
@@ -56,6 +68,14 @@ func validateField(f string) error {
 		return nil
 	}
 	return ErrInvalidFieldValue
+}
+
+func validateLength(s string) error {
+	if len(s) != 9 {
+		return ErrInvalidLength
+	}
+
+	return nil
 }
 
 var (
