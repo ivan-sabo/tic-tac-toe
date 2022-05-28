@@ -21,14 +21,14 @@ type Status string
 // Game represents the main element in domain
 type Game struct {
 	ID     string
-	Board  string
+	Board  Board
 	status Status
 }
 
 func NewGame() Game {
 	return Game{
 		ID:     uuid.NewString(),
-		Board:  string(NewBoard()),
+		Board:  NewBoard(),
 		status: RUNNING,
 	}
 }
@@ -36,4 +36,34 @@ func NewGame() Game {
 // Staus returns the state of the game.
 func (g *Game) Status() Status {
 	return g.status
+}
+
+func (g *Game) PlayMove(nb Board) error {
+	if err := validateMove(g.Board, nb); err != nil {
+		return err
+	}
+
+	g.Board = nb
+
+	return nil
+}
+
+func validateMove(b, nb Board) error {
+	var moveDone bool = false
+
+	for i := range nb {
+		if nb[i] != b[i] {
+			if moveDone {
+				return ErrMoreThanOneMove
+			}
+			moveDone = true
+			continue
+		}
+	}
+
+	if !moveDone {
+		return ErrNoChange
+	}
+
+	return nil
 }

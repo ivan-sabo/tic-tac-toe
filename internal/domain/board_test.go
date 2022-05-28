@@ -53,14 +53,3 @@ func TestString(t *testing.T) {
 		t.Errorf("Invalid value from String(), should be X---O---X, got %v", b.String())
 	}
 }
-
-func TestUpdate(t *testing.T) {
-	b := Board("X--------")
-	if err := b.Update("X-------O"); err != nil {
-		t.Errorf("Got an error while updating, new value should be X-------O, got error %v", err)
-	}
-
-	if string(b) != "X-------O" {
-		t.Errorf("Invalid Board value, should be X-------O, got %v", string(b))
-	}
-}

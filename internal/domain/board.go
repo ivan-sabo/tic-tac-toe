@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"strings"
 )
 
 // Board represents the status of the board.
@@ -30,36 +29,8 @@ func FromString(s string) (Board, error) {
 }
 
 // String implements Stringer interface.
-func (b *Board) String() string {
-	return string(*b)
-}
-
-// Update does the next move.
-func (b *Board) Update(n string) error {
-	if err := validateLength(n); err != nil {
-		return err
-	}
-
-	oldState := strings.Split(b.String(), "")
-	newState := strings.Split(n, "")
-
-	var moveDone bool = false
-
-	for i, c := range newState {
-		if err := validateField(newState[i]); err != nil {
-			return err
-		}
-		if c != oldState[i] {
-			if moveDone {
-				return ErrMoreThanOneMove
-			}
-			newState[i] = c
-			moveDone = true
-			continue
-		}
-	}
-
-	return nil
+func (b Board) String() string {
+	return string(b)
 }
 
 func validateField(f string) error {
@@ -82,4 +53,5 @@ var (
 	ErrInvalidLength     error = errors.New("board invalid length")
 	ErrInvalidFieldValue error = errors.New("field value invalid")
 	ErrMoreThanOneMove   error = errors.New("more than one move in new state")
+	ErrNoChange          error = errors.New("no new change")
 )
