@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 	"math/rand"
 	"time"
@@ -45,9 +46,12 @@ type Game struct {
 	ID       string
 	Board    Board
 	Status   Status
-	aiRole   Role
-	userRole Role
+	AIRole   Role
+	UserRole Role
 }
+
+// Games represents a collection of Game domain objects
+type Games []Game
 
 func StartGame(b Board) (Game, error) {
 	g := Game{
@@ -56,12 +60,12 @@ func StartGame(b Board) (Game, error) {
 		Status: running,
 	}
 
-	g.aiRole = roleO
-	g.userRole = roleX
+	g.AIRole = roleO
+	g.UserRole = roleX
 	if b.IsEmpty() {
 		// This means the board is empty and AI should play first
-		g.aiRole = roleX
-		g.userRole = roleO
+		g.AIRole = roleX
+		g.UserRole = roleO
 		if err := g.playAIMove(); err != nil {
 			return Game{}, err
 		}
@@ -70,8 +74,8 @@ func StartGame(b Board) (Game, error) {
 	return g, nil
 }
 
-// Status calculates the state of the game.
-func (g *Game) UpdateStatus(field rune) {
+// UpdateStatus calculates the state of the game.
+func (g *Game) updateStatus(field rune) {
 	b := g.Board
 
 	matchCount := 0
@@ -160,7 +164,7 @@ func (g *Game) PlayUserMove(nb Board) error {
 	}
 
 	g.Board = nb
-	g.UpdateStatus(g.userRole.field())
+	g.updateStatus(g.UserRole.field())
 
 	if g.Status == running {
 		if err := g.playAIMove(); err != nil {
@@ -222,14 +226,14 @@ playMove:
 				countEmpty++
 
 				if r == countEmpty {
-					nb[ri][ci] = g.aiRole.field()
+					nb[ri][ci] = g.AIRole.field()
 					break playMove
 				}
 			}
 		}
 	}
 
-	g.UpdateStatus(g.aiRole.field())
+	g.updateStatus(g.AIRole.field())
 
 	return nil
 }
@@ -239,3 +243,7 @@ var (
 	ErrNoChange             error = errors.New("no new change")
 	ErrFieldAlreadyAssigned error = errors.New("cannot change the field that has already been played")
 )
+
+type GameRepository interface {
+	List(context.Context) (Games, error)
+}
