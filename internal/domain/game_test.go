@@ -26,3 +26,10 @@ func TestPlayMoveMoreThanOneMoveError(t *testing.T) {
 		t.Errorf("Should get an error %v, got %v", ErrMoreThanOneMove, err)
 	}
 }
+
+func TestPlayMoveFieldAlreadyAssignedError(t *testing.T) {
+	g := Game{Board: Board("X--------")}
+	if err := g.PlayMove("O--------"); err != ErrFieldAlreadyAssigned {
+		t.Errorf("Should get an error %v, got %v", ErrFieldAlreadyAssigned, err)
+	}
+}
