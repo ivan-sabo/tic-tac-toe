@@ -23,6 +23,7 @@ func (gr *GameRouter) AddGameRoutes() {
 	games.POST("/", gr.create)
 	games.GET("/:uuid", gr.get)
 	games.PUT("/:uuid", gr.put)
+	games.DELETE("/:uuid", gr.delete)
 }
 
 func (gr *GameRouter) list(c *gin.Context) {
@@ -115,4 +116,21 @@ func (gr *GameRouter) put(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, interfaces.NewPutGameReponse(game))
+}
+
+func (gr *GameRouter) delete(c *gin.Context) {
+	id := c.Param("uuid")
+
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, "bad uuid")
+		return
+	}
+
+	err := gr.gameRepo.Delete(c, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

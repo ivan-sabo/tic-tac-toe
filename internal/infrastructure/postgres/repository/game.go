@@ -144,3 +144,14 @@ func (g *GamePostgre) Update(ctx context.Context, update domain.Game) error {
 
 	return nil
 }
+
+func (g *GamePostgre) Delete(ctx context.Context, id string) error {
+	const q = `DELETE FROM games WHERE game_id = $1`
+
+	_, err := g.DB.ExecContext(ctx, q, id)
+	if err != nil {
+		return fmt.Errorf("deleting game: %w", err)
+	}
+
+	return nil
+}
