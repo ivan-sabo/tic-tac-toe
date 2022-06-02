@@ -252,4 +252,5 @@ type GameRepository interface {
 	List(context.Context) (Games, error)
 	Create(context.Context, Game) (Game, error)
 	Get(context.Context, string) (Game, error)
+	Update(context.Context, Game) error
 }

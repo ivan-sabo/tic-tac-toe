@@ -125,3 +125,22 @@ func (g *GamePostgre) Get(ctx context.Context, uuid string) (domain.Game, error)
 
 	return game, nil
 }
+
+func (g *GamePostgre) Update(ctx context.Context, update domain.Game) error {
+	_, err := g.Get(ctx, update.ID)
+	if err != nil {
+		return err
+	}
+
+	const q = `UPDATE games SET
+		"board" = $2,
+		"status" = $3
+		WHERE game_id = $1`
+
+	_, err = g.DB.ExecContext(ctx, q, update.ID, update.Board.String(), update.Status.String())
+	if err != nil {
+		return fmt.Errorf("updating game: %w", err)
+	}
+
+	return nil
+}
