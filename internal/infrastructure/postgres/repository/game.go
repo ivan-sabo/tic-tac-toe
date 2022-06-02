@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ivan-sabo/tic-tac-toe/internal/domain"
 	"github.com/jmoiron/sqlx"
@@ -15,10 +16,20 @@ type GameDAO struct {
 	UserRole string `db:"user_role"`
 }
 
+func GameDAOFromEntity(g domain.Game) GameDAO {
+	return GameDAO{
+		ID:       g.ID,
+		Board:    g.Board.String(),
+		Status:   g.Status.String(),
+		AIRole:   g.AIRole.String(),
+		UserRole: g.UserRole.String(),
+	}
+}
+
 type GameDAOs []GameDAO
 
 func (g GameDAO) ToEntity() (domain.Game, error) {
-	b, err := domain.FromString(g.Board)
+	b, err := domain.BoardFromString(g.Board)
 	if err != nil {
 		return domain.Game{}, err
 	}
@@ -69,4 +80,23 @@ func (g *GamePostgre) List(ctx context.Context) (domain.Games, error) {
 	}
 
 	return games, nil
+}
+
+func (g *GamePostgre) Create(ctx context.Context, newGame domain.Game) (domain.Game, error) {
+	gd := GameDAOFromEntity(newGame)
+
+	const q = `INSERT INTO games
+	(game_id, board, status, ai_role, user_role)
+	VALUES($1, $2, $3, $4, $5)`
+
+	if _, err := g.DB.ExecContext(ctx, q, gd.ID, gd.Board, gd.Status, gd.AIRole, gd.UserRole); err != nil {
+		return domain.Game{}, fmt.Errorf("inserting product: %w", err)
+	}
+
+	ge, err := gd.ToEntity()
+	if err != nil {
+		return domain.Game{}, fmt.Errorf("converting to entity: %w", err)
+	}
+
+	return ge, nil
 }

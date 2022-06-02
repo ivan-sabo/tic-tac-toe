@@ -30,8 +30,16 @@ func init() {
 // Status holds the current state of the game
 type Status string
 
+func (s Status) String() string {
+	return string(s)
+}
+
 // Role tells if a player uses X or O role
 type Role string
+
+func (r Role) String() string {
+	return string(r)
+}
 
 func (r Role) field() rune {
 	if r == roleX {
@@ -213,7 +221,7 @@ func (g *Game) playAIMove() error {
 
 	r := rand.Intn(countEmpty) + 1
 
-	nb, err := FromString(g.Board.String())
+	nb, err := BoardFromString(g.Board.String())
 	if err != nil {
 		return err
 	}
@@ -246,4 +254,5 @@ var (
 
 type GameRepository interface {
 	List(context.Context) (Games, error)
+	Create(context.Context, Game) (Game, error)
 }
