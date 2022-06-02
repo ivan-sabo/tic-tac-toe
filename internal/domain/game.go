@@ -71,12 +71,12 @@ func StartGame(b Board) (Game, error) {
 	g.AIRole = roleO
 	g.UserRole = roleX
 	if b.IsEmpty() {
-		// This means the board is empty and AI should play first
 		g.AIRole = roleX
 		g.UserRole = roleO
-		if err := g.playAIMove(); err != nil {
-			return Game{}, err
-		}
+	}
+
+	if err := g.playAIMove(); err != nil {
+		return Game{}, err
 	}
 
 	return g, nil
@@ -221,20 +221,15 @@ func (g *Game) playAIMove() error {
 
 	r := rand.Intn(countEmpty) + 1
 
-	nb, err := BoardFromString(g.Board.String())
-	if err != nil {
-		return err
-	}
-
 	countEmpty = 0
 playMove:
 	for ri := 0; ri < 3; ri++ {
 		for ci := 0; ci < 3; ci++ {
-			if nb[ri][ci] == FieldEmpty {
+			if g.Board[ri][ci] == FieldEmpty {
 				countEmpty++
 
 				if r == countEmpty {
-					nb[ri][ci] = g.AIRole.field()
+					g.Board[ri][ci] = g.AIRole.field()
 					break playMove
 				}
 			}

@@ -33,6 +33,10 @@ func (b Board) IsEmpty() bool {
 
 // FromString should be used to create a new Board structure from string.
 func BoardFromString(s string) (Board, error) {
+	if len(s) == 0 {
+		return NewBoard(), nil
+	}
+
 	if err := validateLength(s); err != nil {
 		return Board{}, err
 	}

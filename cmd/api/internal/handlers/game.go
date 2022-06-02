@@ -36,18 +36,21 @@ func (gr *GameRouter) create(c *gin.Context) {
 
 	c.ShouldBindJSON(&gameRequest)
 
-	board, err := domain.BoardFromString(gameRequest.Board)
+	board, err := gameRequest.ToEntity()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 	game, err := domain.StartGame(board)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	game, err = gr.gameRepo.Create(c, game)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	r := interfaces.NewGameResponse{
