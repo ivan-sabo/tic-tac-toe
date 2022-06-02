@@ -10,6 +10,7 @@ import (
 
 	"github.com/ivan-sabo/tic-tac-toe/cmd/api/internal/handlers"
 	"github.com/ivan-sabo/tic-tac-toe/internal/infrastructure/postgres"
+	"github.com/ivan-sabo/tic-tac-toe/internal/infrastructure/postgres/repository"
 	_ "github.com/lib/pq" // Register the postgres database/sql driver
 )
 
@@ -31,9 +32,11 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
+	gameRepo := repository.GamePostgre{DB: db}
+
 	srv := &http.Server{
 		Addr:    ":8080",
-		Handler: handlers.GetRouter(db),
+		Handler: handlers.GetRouter(&gameRepo),
 	}
 
 	// Initializing the server in a goroutine so that

@@ -8,14 +8,16 @@ import (
 )
 
 type GameDAO struct {
-	ID       string `db:"id"`
+	ID       string `db:"game_id"`
 	Board    string `db:"board"`
 	Status   string `db:"status"`
 	AIRole   string `db:"ai_role"`
 	UserRole string `db:"user_role"`
 }
 
-func (g *GameDAO) ToEntity() (domain.Game, error) {
+type GameDAOs []GameDAO
+
+func (g GameDAO) ToEntity() (domain.Game, error) {
 	b, err := domain.FromString(g.Board)
 	if err != nil {
 		return domain.Game{}, err
@@ -30,21 +32,41 @@ func (g *GameDAO) ToEntity() (domain.Game, error) {
 	}, nil
 }
 
+func (gs GameDAOs) ToEntities() (domain.Games, error) {
+	games := make(domain.Games, len(gs))
+
+	for _, g := range gs {
+		ge, err := g.ToEntity()
+		if err != nil {
+			return domain.Games{}, err
+		}
+
+		games = append(games, ge)
+	}
+
+	return games, nil
+}
+
 type GamePostgre struct {
-	db *sqlx.DB
+	DB *sqlx.DB
 }
 
 // List returns all games
-func (g *GamePostgre) List(ctx context.Context) ([]domain.Game, error) {
-	list := []domain.Game{}
+func (g *GamePostgre) List(ctx context.Context) (domain.Games, error) {
+	list := GameDAOs{}
 
 	const q = `SELECT
-	id, board, status, ai_role, user_role,
+	game_id, board, status, ai_role, user_role
 	FROM games`
 
-	if err := g.db.SelectContext(ctx, &list, q); err != nil {
+	if err := g.DB.SelectContext(ctx, &list, q); err != nil {
 		return nil, err
 	}
 
-	return list, nil
+	games, err := list.ToEntities()
+	if err != nil {
+		return domain.Games{}, err
+	}
+
+	return games, nil
 }

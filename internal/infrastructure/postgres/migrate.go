@@ -12,8 +12,10 @@ var migrations = []darwin.Migration{
 		Script: `
 CREATE TABLE games (
 	game_id	UUID,
-	board	TEXT,
-	status	TEXT,
+	board		TEXT,
+	status		TEXT,
+	ai_role 	TEXT,
+	user_role 	TEXT,
 	
 	PRIMARY KEY (game_id)
 );`,
