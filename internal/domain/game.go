@@ -245,9 +245,11 @@ var (
 	ErrMoreThanOneMove      error = errors.New("more than one move in new state")
 	ErrNoChange             error = errors.New("no new change")
 	ErrFieldAlreadyAssigned error = errors.New("cannot change the field that has already been played")
+	ErrGameNotFound         error = errors.New("game not found")
 )
 
 type GameRepository interface {
 	List(context.Context) (Games, error)
 	Create(context.Context, Game) (Game, error)
+	Get(context.Context, string) (Game, error)
 }

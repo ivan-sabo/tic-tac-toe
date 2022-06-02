@@ -22,3 +22,29 @@ func (ngr NewGameRequest) ToEntity() (domain.Board, error) {
 type NewGameResponse struct {
 	URL string `json:"location"`
 }
+
+type GetGameReponse struct {
+	ID     string `json:"id"`
+	Board  string `json:"board"`
+	Status string `json:"status"`
+}
+
+func NewGetGameReponse(g domain.Game) GetGameReponse {
+	return GetGameReponse{
+		ID:     g.ID,
+		Board:  g.Board.String(),
+		Status: g.Status.String(),
+	}
+}
+
+type ListGameResponse []GetGameReponse
+
+func NewListGameResponse(gs domain.Games) ListGameResponse {
+	games := make(ListGameResponse, 0, len(gs))
+
+	for _, g := range gs {
+		games = append(games, NewGetGameReponse(g))
+	}
+
+	return games
+}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/ivan-sabo/tic-tac-toe/internal/domain"
@@ -44,7 +45,7 @@ func (g GameDAO) ToEntity() (domain.Game, error) {
 }
 
 func (gs GameDAOs) ToEntities() (domain.Games, error) {
-	games := make(domain.Games, len(gs))
+	games := make(domain.Games, 0, len(gs))
 
 	for _, g := range gs {
 		ge, err := g.ToEntity()
@@ -99,4 +100,28 @@ func (g *GamePostgre) Create(ctx context.Context, newGame domain.Game) (domain.G
 	}
 
 	return ge, nil
+}
+
+// Get tries to find a single game by uuid
+func (g *GamePostgre) Get(ctx context.Context, uuid string) (domain.Game, error) {
+	gd := GameDAO{}
+
+	const q = `SELECT
+	game_id, board, status, ai_role, user_role
+	FROM games
+	WHERE game_id = $1`
+
+	if err := g.DB.GetContext(ctx, &gd, q, uuid); err != nil {
+		if err == sql.ErrNoRows {
+			return domain.Game{}, domain.ErrGameNotFound
+		}
+		return domain.Game{}, err
+	}
+
+	game, err := gd.ToEntity()
+	if err != nil {
+		return domain.Game{}, err
+	}
+
+	return game, nil
 }
