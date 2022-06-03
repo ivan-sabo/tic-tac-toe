@@ -18,14 +18,19 @@ Finally, run "go run ./cmd/api/main.go".
 This will fire up game and expose api on localhost:8080/v1/games.
 
 Supported endpoints:
-GET /v1/games
-POST /v1/games          - expects either an empty body, or first move. This is an example of first move request body: {"board":"X--------"}
-GET /v1/games/{uuid}
-PUT /v1/games/{uuid}
+
+    GET /v1/games
+    POST /v1/games          - expects either an empty body, or first move. This is an example of first move request body: {"board":"X--------"}
+    GET /v1/games/{uuid}
+    PUT /v1/games/{uuid}
 
 Todo:
+
     - write unit tests
     - make database and api configurable (ports, username, password, etc)
     - add strategy pattern for AI player algorithms
     - add dependency injection
 
+The only part of code that is not written by me resides inside main.go, it's practically an example how to use graceful shutdown using gin framework:
+
+https://github.com/gin-gonic/examples/blob/master/graceful-shutdown/graceful-shutdown/notify-with-context/server.go
