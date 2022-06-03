@@ -28,3 +28,4 @@ Todo:
     - make database and api configurable (ports, username, password, etc)
     - add strategy pattern for AI player algorithms
     - add dependency injection
+
