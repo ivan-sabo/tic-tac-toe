@@ -13,7 +13,7 @@ type PostGameRequest struct {
 func (ngr PostGameRequest) ToEntity() (domain.Board, error) {
 	b, err := domain.BoardFromString(ngr.Board)
 	if err != nil {
-		return domain.Board{}, fmt.Errorf("creating board domain entity: %w", err)
+		return domain.Board{}, err
 	}
 
 	return b, nil

@@ -62,6 +62,11 @@ type Game struct {
 type Games []Game
 
 func StartGame(b Board) (Game, error) {
+	err := validateNewBoard(b)
+	if err != nil {
+		return Game{}, err
+	}
+
 	g := Game{
 		ID:     uuid.NewString(),
 		Board:  b,
@@ -75,9 +80,7 @@ func StartGame(b Board) (Game, error) {
 		g.UserRole = roleO
 	}
 
-	if err := g.playAIMove(); err != nil {
-		return Game{}, err
-	}
+	g.playAIMove()
 
 	return g, nil
 }
@@ -167,7 +170,11 @@ func (g *Game) updateStatus(field rune) {
 }
 
 func (g *Game) PlayUserMove(nb Board) error {
-	if err := validateMove(g.Board, nb); err != nil {
+	if g.Status != running {
+		return ErrGameFinished
+	}
+
+	if err := validateMove(g.Board, nb, g.UserRole); err != nil {
 		return err
 	}
 
@@ -175,15 +182,13 @@ func (g *Game) PlayUserMove(nb Board) error {
 	g.updateStatus(g.UserRole.field())
 
 	if g.Status == running {
-		if err := g.playAIMove(); err != nil {
-			return err
-		}
+		g.playAIMove()
 	}
 
 	return nil
 }
 
-func validateMove(b, nb Board) error {
+func validateMove(b, nb Board, r Role) error {
 	var moveDone bool = false
 
 	for ri := 0; ri < 3; ri++ {
@@ -191,6 +196,10 @@ func validateMove(b, nb Board) error {
 			if nb[ri][ci] != b[ri][ci] {
 				if b[ri][ci] != FieldEmpty {
 					return ErrFieldAlreadyAssigned
+				}
+
+				if nb[ri][ci] != r.field() {
+					return ErrOponentsRole
 				}
 
 				if moveDone {
@@ -209,7 +218,7 @@ func validateMove(b, nb Board) error {
 	return nil
 }
 
-func (g *Game) playAIMove() error {
+func (g *Game) playAIMove() {
 	countEmpty := 0
 	for ri := 0; ri < 3; ri++ {
 		for ci := 0; ci < 3; ci++ {
@@ -237,8 +246,6 @@ playMove:
 	}
 
 	g.updateStatus(g.AIRole.field())
-
-	return nil
 }
 
 var (
@@ -246,6 +253,8 @@ var (
 	ErrNoChange             error = errors.New("no new change")
 	ErrFieldAlreadyAssigned error = errors.New("cannot change the field that has already been played")
 	ErrGameNotFound         error = errors.New("game not found")
+	ErrOponentsRole         error = errors.New("can't play opponents role")
+	ErrGameFinished         error = errors.New("game is already finished")
 )
 
 type GameRepository interface {

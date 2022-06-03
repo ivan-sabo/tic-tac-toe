@@ -96,7 +96,7 @@ func (g *GamePostgre) Create(ctx context.Context, newGame domain.Game) (domain.G
 
 	ge, err := gd.ToEntity()
 	if err != nil {
-		return domain.Game{}, fmt.Errorf("converting to entity: %w", err)
+		return domain.Game{}, err
 	}
 
 	return ge, nil
@@ -139,7 +139,7 @@ func (g *GamePostgre) Update(ctx context.Context, update domain.Game) error {
 
 	_, err = g.DB.ExecContext(ctx, q, update.ID, update.Board.String(), update.Status.String())
 	if err != nil {
-		return fmt.Errorf("updating game: %w", err)
+		return err
 	}
 
 	return nil
@@ -150,7 +150,7 @@ func (g *GamePostgre) Delete(ctx context.Context, id string) error {
 
 	_, err := g.DB.ExecContext(ctx, q, id)
 	if err != nil {
-		return fmt.Errorf("deleting game: %w", err)
+		return err
 	}
 
 	return nil

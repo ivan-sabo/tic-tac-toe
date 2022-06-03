@@ -78,7 +78,31 @@ func validateLength(s string) error {
 	return nil
 }
 
+func validateNewBoard(b Board) error {
+	// There should be at most one "X" field and zero "O" fields in initial board
+	countX := 0
+	countO := 0
+	for ri := range b {
+		for ci := range b[ri] {
+			validateField(b[ri][ci])
+			switch b[ri][ci] {
+			case FieldX:
+				countX++
+			case FieldO:
+				countO++
+			}
+		}
+	}
+
+	if (countX > 1) || (countO > 0) {
+		return ErrInvalidInitialBoard
+	}
+
+	return nil
+}
+
 var (
-	ErrInvalidLength     error = errors.New("board invalid length")
-	ErrInvalidFieldValue error = errors.New("field value invalid")
+	ErrInvalidLength       error = errors.New("board invalid length")
+	ErrInvalidFieldValue   error = errors.New("field value invalid")
+	ErrInvalidInitialBoard error = errors.New("initial board value invalid")
 )
